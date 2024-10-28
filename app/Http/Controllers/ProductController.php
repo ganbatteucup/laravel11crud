@@ -1,23 +1,76 @@
 <?php
-// Tag pembuka PHP yang menandakan bahwa kode berikutnya adalah kode PHP
-namespace App\Http\Controllers; // Menetapkan namespace 'App\Http\Controllers' untuk controller ini, yang mengelompokkan kelas dalam proyek Laravel
 
-use App\Models\Product; // Mengimpor model 'Product' agar bisa digunakan di dalam 'ProductController' untuk mengakses data produk dari database
-use Illuminate\View\View; // Mengimpor kelas View dari namespace Illuminate\View
+namespace App\Http\Controllers;
 
-class ProductController extends Controller // Mendefinisikan kelas 'ProductController' yang merupakan turunan dari kelas 'Controller'
+//import model product
+use App\Models\Product; 
+
+//import return type View
+use Illuminate\View\View;
+
+//import return type redirectResponse
+use Illuminate\Http\RedirectResponse;
+
+//import Http Request
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
 {
     /**
      * index
      *
      * @return void
      */
-    public function index() : View // Mendeklarasikan metode 'index' dengan visibilitas 'public', yang akan mengembalikan objek tipe 'View'
+    public function index() : View
     {
-        // Mengambil semua data produk dari database, diurutkan berdasarkan produk terbaru, dengan 10 produk per halaman
+        //get all products
         $products = Product::latest()->paginate(10);
 
-        // Me-render tampilan 'products.index' dan mengirimkan variabel 'products' ke dalamnya untuk digunakan di dalam template
+        //render view with products
         return view('products.index', compact('products'));
+    }
+
+    /**
+     * create
+     *
+     * @return View
+     */
+    public function create(): View
+    {
+        return view('products.create');
+    }
+
+    /**
+     * store
+     *
+     * @param  mixed $request
+     * @return RedirectResponse
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        //validate form
+        $request->validate([
+            'image'         => 'required|image|mimes:jpeg,jpg,png|max:2048',
+            'title'         => 'required|min:5',
+            'description'   => 'required|min:10',
+            'price'         => 'required|numeric',
+            'stock'         => 'required|numeric'
+        ]);
+
+        //upload image
+        $image = $request->file('image');
+        $image->storeAs('public/products', $image->hashName());
+
+        //create product
+        Product::create([
+            'image'         => $image->hashName(),
+            'title'         => $request->title,
+            'description'   => $request->description,
+            'price'         => $request->price,
+            'stock'         => $request->stock
+        ]);
+
+        //redirect to index
+        return redirect()->route('products.index')->with(['success' => 'Data Berhasil Disimpan!']);
     }
 }

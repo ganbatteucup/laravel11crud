@@ -2,20 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    use HasFactory; // Mengimpor trait HasFactory untuk mendukung factory pada model ini
+    use HasFactory;
 
-    // Menentukan atribut mana saja yang boleh diisi secara massal
+    /**
+     * fillable
+     *
+     * @var array
+     */
     protected $fillable = [
-        'image',        // Menyimpan URL atau path gambar item
-        'title',        // Menyimpan judul atau nama item
-        'description',  // Menyimpan deskripsi detail item
-        'price',        // Menyimpan harga item
-        'stock',        // Menyimpan jumlah stok item yang tersedia
+        'image',
+        'title',
+        'description',
+        'price',
+        'stock',
     ];
-    
 }
